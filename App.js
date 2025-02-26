@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, KeyboardAvoidingView, Platform, Button } from 'react-native';
 
 export default function App() {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -8,6 +8,19 @@ export default function App() {
   const handleContinue = () => {
     console.log(`Số điện thoại đã nhập: ${phoneNumber}`);
   };
+
+    const [errorMessage, setErrorMessage] = useState('');
+  
+    const validatePhoneNumber = (phone) => {
+      // Biểu thức Regex kiểm tra số điện thoại Việt Nam
+      const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+  
+      if (phoneRegex.test(phone)) {
+        setErrorMessage('Số điện thoại hợp lệ!');
+      } else {
+        setErrorMessage('Số điện thoại không hợp lệ!');
+      }
+    };
 
   return (
     <KeyboardAvoidingView
@@ -18,7 +31,7 @@ export default function App() {
       <Text style={styles.title}>Đăng nhập</Text>
       <Text style={styles.subtitle}>Nhập số điện thoại</Text>
       <Text style={styles.description}>
-        Dùng số điện thoại để đăng nhập hoặc đăng ký tài khoản tại OneHousing Pro
+        Dùng số điện thoại để đăng nhập hoặc đăng ký tài khoản tại BOP House
       </Text>
       <TextInput
         style={styles.input}
@@ -27,13 +40,18 @@ export default function App() {
         value={phoneNumber}
         onChangeText={setPhoneNumber}
       />
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.button, !phoneNumber && styles.buttonDisabled]}
         onPress={handleContinue}
         disabled={!phoneNumber}
       >
         <Text style={styles.buttonText}>Tiếp tục</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Button
+        title="Kiểm tra"
+        onPress={() => validatePhoneNumber(phoneNumber)}
+      />
+      {errorMessage ? <Text>{errorMessage}</Text> : null}
     </KeyboardAvoidingView>
   );
 }
