@@ -1,38 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, KeyboardAvoidingView, Platform, Button } from 'react-native';
+import { StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform, Button } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-export default function App() {
+function LoginScreen({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleContinue = () => {
-    console.log(`Số điện thoại đã nhập: ${phoneNumber}`);
+  const validatePhoneNumber = () => {
+    const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+
+    if (phoneRegex.test(phoneNumber)) {
+      setErrorMessage('');
+      navigation.navigate('Home'); // Chuyển đến màn hình Home
+    } else {
+      setErrorMessage('Số điện thoại không hợp lệ!');
+    }
   };
 
-    const [errorMessage, setErrorMessage] = useState('');
-  
-    const validatePhoneNumber = (phone) => {
-      // Biểu thức Regex kiểm tra số điện thoại Việt Nam
-      const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
-  
-      if (phoneRegex.test(phone)) {
-        setErrorMessage('Số điện thoại hợp lệ!');
-      } else {
-        setErrorMessage('Số điện thoại không hợp lệ!');
-      }
-    };
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <StatusBar style="auto" />
       <Text style={styles.title}>Đăng nhập</Text>
       <Text style={styles.subtitle}>Nhập số điện thoại</Text>
-      <Text style={styles.description}>
-        Dùng số điện thoại để đăng nhập hoặc đăng ký tài khoản tại BOP House
-      </Text>
       <TextInput
         style={styles.input}
         placeholder="Nhập số điện thoại của bạn"
@@ -40,19 +31,42 @@ export default function App() {
         value={phoneNumber}
         onChangeText={setPhoneNumber}
       />
-      {/* <TouchableOpacity
-        style={[styles.button, !phoneNumber && styles.buttonDisabled]}
-        onPress={handleContinue}
-        disabled={!phoneNumber}
-      >
-        <Text style={styles.buttonText}>Tiếp tục</Text>
-      </TouchableOpacity> */}
-      <Button
-        title="Kiểm tra"
-        onPress={() => validatePhoneNumber(phoneNumber)}
-      />
-      {errorMessage ? <Text>{errorMessage}</Text> : null}
+      <Button title="Đăng nhập" onPress={validatePhoneNumber} />
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
     </KeyboardAvoidingView>
+  );
+}
+
+function HomeScreen({ navigation }) {
+  return (
+    <View style={styles.screen}>
+      <Text>Home Screen</Text>
+      <Button title="Go to Details" onPress={() => navigation.navigate('Details')} />
+    </View>
+  );
+}
+
+function DetailsScreen({ navigation }) {
+  return (
+    <View style={styles.screen}>
+      <Text>Details Screen</Text>
+      <Button title="Go to Details... again" onPress={() => navigation.push('Details')} />
+      <Button title="Go back" onPress={() => navigation.goBack()} />
+    </View>
+  );
+}
+
+const Stack = createNativeStackNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Details" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -74,12 +88,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     textAlign: 'left',
   },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 10,
-    marginBottom: 20,
-  },
   input: {
     height: 50,
     borderColor: '#ccc',
@@ -88,19 +96,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 20,
   },
-  button: {
-    height: 50,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-    justifyContent: 'center',
+  errorText: {
+    color: 'red',
+    marginTop: 10,
+  },
+  screen: {
+    flex: 1,
     alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    justifyContent: 'center',
   },
 });
